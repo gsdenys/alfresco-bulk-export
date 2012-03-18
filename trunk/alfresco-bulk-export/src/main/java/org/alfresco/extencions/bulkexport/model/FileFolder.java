@@ -1,0 +1,208 @@
+/**
+ *  This file is part of Alfresco Bulk Export Tool.
+ * 
+ *  Alfresco Bulk Export Tool is free software: you can redistribute it 
+ *  and/or modify it under the terms of the GNU General Public License as
+ *  published by the Free Software Foundation, either version 3 of the 
+ *  License, or (at your option) any later version.
+ *
+ *  Alfresco Bulk Export Tool  is distributed in the hope that it will be 
+ *  useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+ *  Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along 
+ *  with Alfresco Bulk Export Tool. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.alfresco.extencions.bulkexport.model;
+
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+
+
+/**
+ * This class manage the files and folders creation
+ * 
+ * @author Denys G. Santos (gsdenys@gmail.com)
+ * @version 1.0.1
+ */
+public class FileFolder {
+ 
+	/** {@link String} path to export data location in Alfresco
+	 *  server
+	 */
+	private String basePath;
+	
+	/**
+	 * File Folder default builder
+	 * 
+	 * @param basePath
+	 */
+	public FileFolder(String basePath) {
+		this.basePath = basePath;
+	}		
+	
+	
+	/**
+	 * Create a new Folder in a {@link String} path
+	 * 
+	 * @param path Path of Alfresco folder
+	 */
+	public void createFolder(String path) throws Exception {
+		path = this.basePath + path;
+		String[] pastas = path.split("/");
+		String raiz = pastas[0].toString() + "/";
+		
+		for (int i = 0; i<pastas.length; i++) {
+			if (i>0) {
+				
+				File dir = new File(raiz + pastas[i].toString());
+				
+				if (!dir.exists()) {
+					dir.mkdir();
+				}
+				
+				raiz = raiz + pastas[i].toString() + "/";
+			}
+		}
+	}
+	
+	
+	/**
+	 * Create a new file in the {@link String} path 
+	 * 
+	 * @param filePath Path of file
+	 * @throws IOException
+	 */
+	private void createFile (String filePath) throws Exception {	
+		File f=new File(filePath);
+		
+		try {  
+			if(!f.exists()){
+			  f.createNewFile();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * Create XML File
+	 * 
+	 * @param filePath Path of file
+	 * @return {@link String} Name of file
+	 * @throws Exception
+	 */
+	private String createXmlFile(String filePath) throws Exception {
+		String fp = filePath + ".metadata.properties.xml";
+		
+		this.createFile(fp);
+		
+		return fp;
+	}
+	
+	
+	/**
+	 * create content file
+	 * 
+	 * @param content
+	 * @param filePath
+	 * @throws IOException
+	 */
+	public void insertFileContent (ByteArrayOutputStream out, String filePath) throws Exception {
+		filePath = this.basePath + filePath;
+		
+		this.createFile(filePath);
+		
+		try {
+			FileOutputStream output = new FileOutputStream(filePath);
+			output.write(out.toByteArray());
+			output.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * Insert Content Properties in the XML File
+	 * 
+	 * @param type The type of node
+	 * @param aspects The aspect {@link List} of node in {@link String} format
+	 * @param properties The properties {@link Map} of node in {@link String} format
+	 * @param filePath The path of file
+	 * @throws Exception
+	 */
+	public void insertFileProperties(String type, List<String> aspects,Map<String, String> properties, String filePath) throws Exception{
+		filePath = this.basePath + filePath;
+		
+		String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\n<properties>";
+		String footer = "\n</properties>";
+		
+		String tType = "<entry key=\"type\">" + type + "</entry>";
+		String tAspect = "<entry key=\"aspects\">" + this.formatAspects(aspects) + "</entry>";
+		
+		String text = "\n\t" + tType + "\n\t" + tAspect;
+		
+		Set<String> set = properties.keySet();
+		
+		for (String string : set) {
+			String key = string;
+			String value = properties.get(key);
+			
+			text += "\n\t<entry key=\"" + key +"\">" + value + "</entry>";
+		}
+		
+		try {
+			String fp = this.createXmlFile(filePath);
+			File file = new File(fp);
+			
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
+			out.append(header);
+			out.append(text);
+			out.append(footer);
+			
+			out.flush();
+			out.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	/**
+	 * Format aspects
+	 * 
+	 * @param aspects
+	 * @return
+	 */
+	public String formatAspects(List<String> aspects){
+				
+		String dado = "";
+		
+		boolean flag = false;
+		for (String string : aspects) {
+			if(flag){
+				dado += ",";
+			}
+			
+			dado += string;
+			flag = true;
+		}
+		
+		return dado;
+	}
+	
+	
+}
