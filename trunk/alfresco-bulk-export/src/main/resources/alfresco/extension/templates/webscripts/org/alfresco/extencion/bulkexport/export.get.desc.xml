@@ -1,8 +1,0 @@
-<webscript>
-  <shortname>Bulk Export</shortname>
-  <description>Export data as Bulk format</description>
-  <url>/bulkexport/export?nodeRef={NodeRef}</url>
-  <authentication>user</authentication>
-  <transaction allow="readonly">required</transaction>
-  <format default="html">extension</format>
-</webscript>
