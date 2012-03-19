@@ -41,13 +41,19 @@ public class FileFolder {
 	 */
 	private String basePath;
 	
+	/** {@link Boolean} value to avaliate if ovewrite content 
+	 * exported or no 
+	 */
+	private boolean ignoreExported;
+	
 	/**
 	 * File Folder default builder
 	 * 
 	 * @param basePath
 	 */
-	public FileFolder(String basePath) {
+	public FileFolder(String basePath, boolean ignoreExported) {
 		this.basePath = basePath;
+		this.ignoreExported = ignoreExported;
 	}		
 	
 	
@@ -121,6 +127,10 @@ public class FileFolder {
 	public void insertFileContent (ByteArrayOutputStream out, String filePath) throws Exception {
 		filePath = this.basePath + filePath;
 		
+		if(this.isFileExist(filePath) && this.ignoreExported){
+			return;
+		}
+		
 		this.createFile(filePath);
 		
 		try {
@@ -144,6 +154,11 @@ public class FileFolder {
 	 */
 	public void insertFileProperties(String type, List<String> aspects,Map<String, String> properties, String filePath) throws Exception{
 		filePath = this.basePath + filePath;
+		
+		if(this.isFileExist(filePath) && this.ignoreExported){
+			return;
+		}
+		
 		
 		String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\n<properties>";
 		String footer = "\n</properties>";
@@ -209,6 +224,12 @@ public class FileFolder {
 	}
 	
 	
+	/**
+	 * Method to replace special character to html code
+	 * 
+	 * @param value {@link String} value of field
+	 * @return {@link String}
+	 */
 	private String formatProperty(String value){
 		
 		//format < and >
@@ -220,6 +241,21 @@ public class FileFolder {
 	}
 	
 	
+	/**
+	 * Method to see if file already exists
+	 * 
+	 * @param path The {@link String} path of file 
+	 * @return {@link Boolean}
+	 */
+	private boolean isFileExist(String path){
+		File f=new File(path);
+		
+		if(f.exists()){
+		  return true;
+		}
+
+		return false;
+	}
 	
 	
 }
