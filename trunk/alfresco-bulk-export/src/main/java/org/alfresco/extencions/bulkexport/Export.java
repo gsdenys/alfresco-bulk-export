@@ -67,12 +67,9 @@ public class Export extends AbstractWebScript {
 		engine = new Engine(dao, fileFolder);
 		
 		try{
-			res.getWriter().write("teste".toString());
-		
 			NodeRef nf = dao.getNodeRef(nodeRef); 
 			engine.execute(nf);
-			
-			res.getWriter().write("Successfull");
+			res.getWriter().write("Process finished Successfully");
 		} catch (Exception e) {
 			e.printStackTrace();
 			res.getWriter().write(e.toString());
