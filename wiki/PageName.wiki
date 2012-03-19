@@ -1,0 +1,16 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
+
+
+== Start Export ==
+
+http://localhost:8080/alfresco/service/extencions/bulkexport/export?nodeRef=workspace://SpacesStore/fccce463-f874-43c0-b6fb-7f3f1b0a2b8c&base=C:\export
