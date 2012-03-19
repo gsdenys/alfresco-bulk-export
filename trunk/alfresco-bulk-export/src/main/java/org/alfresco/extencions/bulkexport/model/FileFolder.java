@@ -159,6 +159,10 @@ public class FileFolder {
 			String key = string;
 			String value = properties.get(key);
 			
+			
+			value = this.formatProperty(value);
+			
+			
 			text += "\n\t<entry key=\"" + key +"\">" + value + "</entry>";
 		}
 		
@@ -187,7 +191,7 @@ public class FileFolder {
 	 * @param aspects
 	 * @return
 	 */
-	public String formatAspects(List<String> aspects){
+	private String formatAspects(List<String> aspects){
 				
 		String dado = "";
 		
@@ -203,6 +207,19 @@ public class FileFolder {
 		
 		return dado;
 	}
+	
+	
+	private String formatProperty(String value){
+		
+		//format < and >
+		value = value.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+		//format &
+		value = value.replaceAll("&", "&amp;");
+			
+		return value;
+	}
+	
+	
 	
 	
 }
