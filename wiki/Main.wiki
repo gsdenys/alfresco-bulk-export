@@ -6,4 +6,5 @@
  * [Installation]
  * [Usage]
  *  [http://code.google.com/p/alfresco-bulk-export/issues/list?can=1&q=&colspec=ID+Type+Status+Priority+Milestone+Owner+Summary&cells=tiles Issues]
-    * [http://code.google.com/p/alfresco-bulk-export/issues/list?can=2&q=&colspec=ID+Type+Status+Priority+Milestone+Owner+Summary&cells=tiles Open]
+    * [http://code.google.com/p/alfresco-bulk-export/issues/list?can=2&q=&colspec=ID+Type+Status+Priority+Milestone+Owner+Summary&cells=tiles Open Issues]
+    * [http://code.google.com/p/alfresco-bulk-export/issues/list?can=2&q=&colspec=ID+Type+Status+Priority+Milestone+Owner+Summary&cells=tiles New Issues]
