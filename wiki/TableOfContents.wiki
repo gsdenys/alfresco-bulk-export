@@ -1,1 +1,1 @@
-[Article HOWTO Installation]
+* [Articles HOWTO Installation]
