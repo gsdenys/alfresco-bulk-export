@@ -61,17 +61,17 @@ public class Export extends AbstractWebScript {
 		String nodeRef = req.getParameter("nodeRef");
 		String base = req.getParameter("base");
 		
-		boolean ignoreExported = false;
+		boolean scapeExported = false;
 		
 		if (req.getParameter("ignoreExported") != null){
 			if(req.getParameter("ignoreExported").equals("true")) {
-				ignoreExported = true;
+				scapeExported = true;
 			}
 		}
 		
 		//init variables
 		dao = new AlfrescoExportDaoImpl(this.serviceRegistry);
-		fileFolder = new FileFolder(base, ignoreExported);
+		fileFolder = new FileFolder(base, scapeExported);
 		engine = new Engine(dao, fileFolder);
 		
 		try{

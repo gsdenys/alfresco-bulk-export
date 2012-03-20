@@ -44,16 +44,16 @@ public class FileFolder {
 	/** {@link Boolean} value to avaliate if ovewrite content 
 	 * exported or no 
 	 */
-	private boolean ignoreExported;
+	private boolean scapeExported;
 	
 	/**
 	 * File Folder default builder
 	 * 
 	 * @param basePath
 	 */
-	public FileFolder(String basePath, boolean ignoreExported) {
+	public FileFolder(String basePath, boolean scapeExported) {
 		this.basePath = basePath;
-		this.ignoreExported = ignoreExported;
+		this.scapeExported = scapeExported;
 	}		
 	
 	
@@ -127,7 +127,7 @@ public class FileFolder {
 	public void insertFileContent (ByteArrayOutputStream out, String filePath) throws Exception {
 		filePath = this.basePath + filePath;
 		
-		if(this.isFileExist(filePath) && this.ignoreExported){
+		if(this.isFileExist(filePath) && this.scapeExported){
 			return;
 		}
 		
@@ -155,7 +155,7 @@ public class FileFolder {
 	public void insertFileProperties(String type, List<String> aspects,Map<String, String> properties, String filePath) throws Exception{
 		filePath = this.basePath + filePath;
 		
-		if(this.isFileExist(filePath) && this.ignoreExported){
+		if(this.isFileExist(filePath) && this.scapeExported){
 			return;
 		}
 		
