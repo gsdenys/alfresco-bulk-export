@@ -7,3 +7,8 @@
 
  
   [http://{host}:{port}/alfresco/service/extencions/bulkexport/export?nodeRef={noderef}&base={base}&ignoreExported={ignoreExported?}]
+
+  where:
+ 
+    * *{host}:* is a host of your instalation
+    * *{port}:* is a port used by Alfresco
