@@ -1,4 +1,6 @@
 #labels Featured,Phase-Deploy
+#sidebar Main
+
 = Table of Content =
 
  * [Installation]
