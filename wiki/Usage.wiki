@@ -8,9 +8,8 @@
   [http://{host}:{port}/alfresco/service/extencions/bulkexport/export?nodeRef={noderef}&base={base}&ignoreExported={ignoreExported?}]
 
   where:
- 
-         * *{host}:* is the host of your instalation.
-         * *{port}:* is the port used by Alfresco.
-         * *{noderef}:* is an Alfresco node reference that you want to export. Like: _workspace://SpacesStore/c494aff5-bedf-40fa-8d0d-2aebcd583579_
-         * *{base}:* is a base path of your target folder. Like: _/home/gsdenys/export_ or _C:/export_.
-         * *{ignoreExported?}:* this parameter is not required. when it is true, the sistem ignore all Alfresco nodes already exported. The default is _false_.
+    * *{host}:* is the host of your instalation.
+    * *{port}:* is the port used by Alfresco.
+    * *{noderef}:* is an Alfresco node reference that you want to export. Like: _workspace://SpacesStore/c494aff5-bedf-40fa-8d0d-2aebcd583579_
+    * *{base}:* is a base path of your target folder. Like: _/home/gsdenys/export_ or _C:/export_.
+    * *{ignoreExported?}:* this parameter is not required. when it is true, the sistem ignore all Alfresco nodes already exported. The default is _false_.
