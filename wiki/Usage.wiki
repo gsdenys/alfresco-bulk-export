@@ -2,3 +2,9 @@
 #sidebar Main
 
 = Export Alfresco Content =
+
+  This module is started by a simple webscript call. To init the exportation you just use this URL in a browser:
+
+ {{{
+  http://{host}:{port}/alfresco/service/extencions/bulkexport/export?nodeRef={noderef}&base={base}&ignoreExported={ignoreExported?}
+ }}}
