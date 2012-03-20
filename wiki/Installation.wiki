@@ -5,7 +5,7 @@ Installing the Alfresco Bulk Filesystem Export Tool.
 
 <wiki:toc max_depth="1" />
 
-#sidebar pragma
+#sidebar TableOfContents	
 
 = Prerequisites =
 
