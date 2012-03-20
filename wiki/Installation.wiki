@@ -1,5 +1,5 @@
 #labels Phase-Deploy,Featured
-#sidebar main
+#sidebar Main
 
 = Prerequisites =
 
