@@ -1,11 +1,5 @@
 #labels Phase-Deploy,Featured
-<wiki:comment>
-Installing the Alfresco Bulk Filesystem Export Tool. 
-</wiki:comment>
-
-<wiki:toc max_depth="1" />
-
-#sidebar TableOfContents	
+#sidebar TableOfContents
 
 = Prerequisites =
 
