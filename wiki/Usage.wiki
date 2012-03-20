@@ -14,4 +14,4 @@
     * *{base}:* is a base path of your target folder (in the Alfresco Server). Like: _/home/gsdenys/export_ or _C:/export_.
     * *{ignoreExported?}:* this parameter is not required. when it is true, the sistem ignore all Alfresco nodes already exported. The default is _false_.
 
-  When the export is ended you will see in browser a message _"Process finished Successfully"_. Once this message is printed, look-up in the Alfresco Server the {base} directory.
+  When the export is ended you will see in browser a message _"Process finished Successfully"_. Once this message is printed, look-up your content in the Alfresco Server in the {base} directory.
