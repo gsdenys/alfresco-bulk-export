@@ -1,4 +1,5 @@
 #labels Phase-Deploy,Featured
+#sidebar TableOfContents
 
 = Prerequisites =
 
