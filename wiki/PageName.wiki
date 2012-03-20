@@ -12,11 +12,11 @@ You also need to be running at least JDK 1.6 - the tool uses Java features that 
 The following steps describe how to download and install the Alfresco Bulk Filesystem Import Tool:
 
 
-1. Download the latest AMP file containing the tool from here 
-2. Shutdown your Alfresco instance
-3. Make a backup of the original alfresco.war file. On Tomcat, this is located in ${ALFRESCO_HOME}/tomcat/webapps
-4. Use the Alfresco [http://wiki.alfresco.com/wiki/Module_Management_Tool Module Management Tool] to install the AMP file obtained in step 1
-5. Restart Alfresco, watching the log carefully for errors
+ #Download the latest AMP file containing the tool from here
+ #Shutdown your Alfresco instance
+ #Make a backup of the original alfresco.war file. On Tomcat, this is located in ${ALFRESCO_HOME}/tomcat/webapps
+ #Use the Alfresco [http://wiki.alfresco.com/wiki/Module_Management_Tool Module Management Tool] to install the AMP file obtained in step 1
+ #Restart Alfresco, watching the log carefully for errors
 
 == Start Export ==
 
