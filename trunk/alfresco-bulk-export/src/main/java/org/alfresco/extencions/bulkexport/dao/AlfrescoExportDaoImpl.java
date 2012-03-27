@@ -58,6 +58,10 @@ public class AlfrescoExportDaoImpl implements AlfrescoExportDao {
 			ContentModel.ASPECT_TAGGABLE
 	};
 	
+	private String ignoreAspectPrefix[] = {
+			"app"
+	};
+	
 	private QName ignorePropertyQname[] = { 
 			ContentModel.PROP_NODE_DBID, 
 			ContentModel.PROP_NODE_UUID, 
@@ -331,9 +335,14 @@ public class AlfrescoExportDaoImpl implements AlfrescoExportDao {
 		}
 		
 		//verify if qname prefix is in ignored
-		String prefix = qName.getPrefixString();
+		//String prefix = qName.getPrefixString();
+		NamespacePrefixResolver nsR = this.registry.getNamespaceService();
+		String prefix = qName.getPrefixedQName(nsR).getPrefixString();
 		for (String str : this.ignorePropertyPrefix) {
-			if(str.equalsIgnoreCase(prefix)){
+			
+			//str.equalsIgnoreCase(prefix)
+			
+			if(prefix.startsWith(str)){
 				return true;
 			}
 		}
@@ -352,6 +361,16 @@ public class AlfrescoExportDaoImpl implements AlfrescoExportDao {
 		//verify if qname is in ignored
 		for (QName qn : this.ignoreAspectQname) {
 			if(qn.equals(qName)){
+				return true;
+			}
+		}
+		
+		//verify if qname prefix is in ignored
+		//String prefix = qName.getPrefixString();
+		NamespacePrefixResolver nsR = this.registry.getNamespaceService();
+		String prefix = qName.getPrefixedQName(nsR).getPrefixString();
+		for (String str : this.ignoreAspectPrefix) {
+			if(prefix.startsWith(str)){
 				return true;
 			}
 		}
