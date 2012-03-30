@@ -230,13 +230,13 @@ public class FileFolder {
 	 * @param value {@link String} value of field
 	 * @return {@link String}
 	 */
-	private String formatProperty(String value){
+	private String formatProperty(String value){		
 		
-		//format < and >
-		value = value.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 		//format &
 		value = value.replaceAll("&", "&amp;");
-			
+		//format < and >
+		value = value.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+		
 		return value;
 	}
 	
