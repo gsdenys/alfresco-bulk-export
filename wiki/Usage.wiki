@@ -5,7 +5,7 @@
 
   This module is started by a simple webscript call. To initiate the exportation you just use this URL in a browser:
  
-  [http://{host}:{port}/alfresco/service/extencions/bulkexport/export?nodeRef={noderef}&base={base}&ignoreExported={ignoreExported?}]
+  [http://{host}:{port}/alfresco/service/extensions/bulkexport/export?nodeRef={noderef}&base={base}&ignoreExported={ignoreExported?}]
 
   where:
     * *{host}:* is the host of your instalation.
