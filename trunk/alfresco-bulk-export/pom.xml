@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.alfresco.extencions.sbulkexport</groupId>
 	<artifactId>bulkexport</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
 	<packaging>amp</packaging>
 
 	<repositories>
@@ -16,25 +16,33 @@
 		<repository>
 			<id>alfresco-public</id>
 			<name>Alfresco Public Repository</name>
-			<url>http://maven.alfresco.com/nexus/content/repositories/releases</url>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
 		</repository>
 		<repository>
 			<id>alfresco-public-snapshots</id>
-			<url>http://maven.alfresco.com/nexus/content/groups/public-snapshots</url>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public-snapshots</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
 		</repository>
 
 		<repository>
-			<id>spring-extensions-milestone</id>
-			<name>Spring Extensions Milestone Repository</name>
-			<url>http://extensions.springframework.org/milestone</url>
+			<id>repository.springframework.maven.release</id>
+			<name>Spring Framework Maven Release Repository</name>
+			<url>http://maven.springframework.org/release</url>
 		</repository>
 		<repository>
-			<id>spring-extensions-snapshot</id>
-			<name>Spring Extensions Snapshot Repository</name>
-			<url>http://extensions.springframework.org/snapshot</url>
+			<id>repository.springframework.maven.milestone</id>
+			<name>Spring Framework Maven Milestone Repository</name>
+			<url>http://maven.springframework.org/milestone</url>
+		</repository>
+		<repository>
+			<id>repository.springframework.maven.snapshot</id>
+			<name>Spring Framework Maven Snapshot Repository</name>
+			<url>http://maven.springframework.org/snapshot</url>
 		</repository>
 	</repositories>
 
@@ -42,7 +50,7 @@
 		<pluginRepository>
 			<id>alfresco-public</id>
 			<name>Alfresco</name>
-			<url>http://maven.alfresco.com/nexus/content/repositories/releases</url>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
 		</pluginRepository>
 	</pluginRepositories>
 
@@ -50,22 +58,19 @@
 		<dependency>
 			<groupId>org.alfresco</groupId>
 			<artifactId>alfresco-core</artifactId>
-			<version>4.0.b</version>
-			<classifier>community</classifier>
+			<version>4.0.d</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.alfresco</groupId>
 			<artifactId>alfresco-repository</artifactId>
-			<version>4.0.b</version>
-			<classifier>community</classifier>
+			<version>4.0.d</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.alfresco</groupId>
 			<artifactId>alfresco-data-model</artifactId>
-			<version>3.4.a</version>
-			<classifier>community</classifier>
+			<version>4.0.d</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -106,7 +111,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 
 </project>
