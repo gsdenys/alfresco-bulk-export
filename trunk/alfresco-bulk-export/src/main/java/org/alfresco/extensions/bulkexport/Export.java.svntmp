@@ -18,7 +18,7 @@ package org.alfresco.extensions.bulkexport;
 
 import java.io.IOException;
 
-import org.alfresco.extensions.bulkexport.controler.Engine;
+import org.alfresco.extensions.bulkexport.controler.EngineImpl;
 import org.alfresco.extensions.bulkexport.dao.AlfrescoExportDao;
 import org.alfresco.extensions.bulkexport.dao.AlfrescoExportDaoImpl;
 import org.alfresco.extensions.bulkexport.model.FileFolder;
@@ -46,7 +46,7 @@ public class Export extends AbstractWebScript {
 	protected FileFolder fileFolder;
 	
 	/** Engine of system */
-	protected Engine engine;
+	protected EngineImpl engine;
 	
 	
 	/**
@@ -72,7 +72,7 @@ public class Export extends AbstractWebScript {
 		//init variables
 		dao = new AlfrescoExportDaoImpl(this.serviceRegistry);
 		fileFolder = new FileFolder(base, scapeExported);
-		engine = new Engine(dao, fileFolder);
+		engine = new EngineImpl(dao, fileFolder);
 		
 		try{
 			NodeRef nf = dao.getNodeRef(nodeRef); 
