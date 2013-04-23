@@ -77,7 +77,8 @@ public class AlfrescoExportDaoImpl implements AlfrescoExportDao {
 	
 	private QName[] ignoredType = {
 			ContentModel.TYPE_SYSTEM_FOLDER,
-			ContentModel.TYPE_LINK
+			ContentModel.TYPE_LINK,
+			QName.createQName("{http://www.alfresco.org/model/action/1.0}action")
 	};
 	
 	
@@ -229,6 +230,12 @@ public class AlfrescoExportDaoImpl implements AlfrescoExportDao {
 			out.write(buf, 0, sizeOut);
 		}
 		
+		out.flush();
+		out.close();
+		
+		in.close();
+		
+		
 		return out;
 	}
 
@@ -314,6 +321,19 @@ public class AlfrescoExportDaoImpl implements AlfrescoExportDao {
 			return null;
 		}
 	}
+	
+	
+	public boolean isNodeIgnored(String nodeRef) {
+		NodeRef nr = getNodeRef(nodeRef);
+		
+		NodeService nodeService = this.registry.getNodeService();
+		
+		QName value = nodeService.getType(nr);
+		
+		return isTypeIgnored(value);
+		
+	}
+	
 	
 	
 	// #######################################################################################

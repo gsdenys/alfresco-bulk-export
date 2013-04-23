@@ -20,6 +20,7 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
@@ -136,6 +137,7 @@ public class FileFolder {
 		try {
 			FileOutputStream output = new FileOutputStream(filePath);
 			output.write(out.toByteArray());
+			output.flush();
 			output.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -155,7 +157,7 @@ public class FileFolder {
 	public void insertFileProperties(String type, List<String> aspects,Map<String, String> properties, String filePath) throws Exception{
 		filePath = this.basePath + filePath;
 		
-		if(this.isFileExist(filePath) && this.scapeExported){
+		if(this.isFileExist(filePath) && this.isFileExist(filePath + ".metadata.properties.xml") && this.scapeExported){
 			return;
 		}
 		
@@ -185,13 +187,29 @@ public class FileFolder {
 			String fp = this.createXmlFile(filePath);
 			File file = new File(fp);
 			
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
-			out.append(header);
-			out.append(text);
-			out.append(footer);
+//			FileWriter fw = new FileWriter(file.getAbsoluteFile());
 			
-			out.flush();
-			out.close();
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
+			
+			StringBuilder builder = new StringBuilder();
+			builder.append(header);
+			builder.append(text);
+			builder.append(footer);
+			
+			bw.write(builder.toString());
+			bw.close();
+			
+			
+//			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
+//			out.append(header);
+//			out.append(text);
+//			out.append(footer);
+//			
+//			out.flush();
+//			out.close();
+			
+			
+			
 		}
 		catch (Exception e) {
 			e.printStackTrace();

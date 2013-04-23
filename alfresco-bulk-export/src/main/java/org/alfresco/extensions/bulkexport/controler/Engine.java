@@ -60,15 +60,18 @@ public class Engine {
 	public void execute(NodeRef nodeRef) throws Exception {	
 		// case node is folder create a folder and execute recursively 
 		// other else create file 
-		if(this.dao.isFolder(nodeRef)){
-			this.createFolder(nodeRef);
-
-			List<NodeRef> children= this.dao.getChildren(nodeRef);
-			for (NodeRef child : children) {			
-				this.execute(child);
+		
+		if(!this.dao.isNodeIgnored(nodeRef.toString())){	
+			if(this.dao.isFolder(nodeRef)){
+				this.createFolder(nodeRef);
+	
+				List<NodeRef> children= this.dao.getChildren(nodeRef);
+				for (NodeRef child : children) {			
+					this.execute(child);
+				}
+			} else {
+				this.createFile(nodeRef);
 			}
-		} else {
-			this.createFile(nodeRef);
 		}	
 	}
 	
