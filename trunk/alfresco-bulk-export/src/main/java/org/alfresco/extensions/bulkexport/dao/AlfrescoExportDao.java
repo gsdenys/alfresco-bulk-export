@@ -33,6 +33,9 @@ import org.alfresco.service.namespace.QName;
  */
 public interface AlfrescoExportDao {
 	
+	
+	public boolean isNodeIgnored(String nodeRef);
+	
 	/**
 	 * Method to get node properties.
 	 * 
