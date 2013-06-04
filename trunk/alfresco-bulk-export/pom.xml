@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.alfresco.extencions.sbulkexport</groupId>
 	<artifactId>bulkexport</artifactId>
-	<version>0.0.4</version>
+	<version>0.0.5</version>
 	<packaging>amp</packaging>
 
 	<repositories>
