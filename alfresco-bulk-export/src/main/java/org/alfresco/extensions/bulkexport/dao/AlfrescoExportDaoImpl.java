@@ -103,6 +103,7 @@ public class AlfrescoExportDaoImpl implements AlfrescoExportDao
     {
             ContentModel.TYPE_SYSTEM_FOLDER,
             ContentModel.TYPE_LINK,
+            ContentModel.TYPE_RATING,
             QName.createQName("{http://www.alfresco.org/model/action/1.0}action")
     };
     
