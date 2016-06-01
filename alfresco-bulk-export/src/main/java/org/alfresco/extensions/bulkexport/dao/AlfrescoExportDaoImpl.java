@@ -31,6 +31,7 @@ import java.util.Iterator;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.action.ActionModel;
+import org.alfresco.repo.publishing.PublishingModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileInfo;
@@ -106,7 +107,8 @@ public class AlfrescoExportDaoImpl implements AlfrescoExportDao
             ContentModel.TYPE_LINK,
             ContentModel.TYPE_RATING,
             ActionModel.TYPE_ACTION,
-            ActionModel.TYPE_COMPOSITE_ACTION
+            ActionModel.TYPE_COMPOSITE_ACTION,
+            PublishingModel.TYPE_PUBLISHING_QUEUE
     };
     
     
