@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="be:bulkExportModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+    <!-- Optional meta-data about the model -->
+    <description>Document Model for Repo Extension Bulk Export</description>
+    <author>Denys G. Santos</author>
+    <version>1.0</version>
+
+    <imports>
+        <!-- Import Alfresco Dictionary Definitions -->
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <!-- Import Alfresco Content Domain Model Definitions -->
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <!-- Import Alfresco System Model Definitions -->
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
+    </imports>
+
+    <!-- Custom namespace for your domain -->
+    <namespaces>
+        <namespace uri="http://www.alfresco.com/model/bulkexport/2.0" prefix="be"/>
+    </namespaces>
+
+    <!-- ===============================================================================================================
+        Constraints, Types, and Aspects go here...
+        -->
+    <types>
+        <type name="be:project">
+            <parent>cm:folder</parent>
+            <title>Bulk Export Project Folder</title>
+            <description>
+                Base project folder to store all exports configuration.
+            </description>
+            <properties>
+                <property name="be:prjstatus">
+                    <type>d:text</type>
+                    <title>Status</title>
+                    <default>CREATED</default>
+                    <description>Status of export job</description>
+                    <constraints>
+                        <constraint>be:c_prjstatus</constraint>
+                    </constraints>
+                </property>
+            </properties>
+        </type>
+
+        <type name="be:config">
+            <parent>cm:content</parent>
+            <title>Bulk Export Configuration File</title>
+            <description>
+                A document to store the configuration that will be used to the exportation job.
+            </description>
+            <properties>
+                <property name="be:configstatus">
+                    <type>d:text</type>
+                    <title>Status</title>
+                    <description>
+                        Status of config status export job
+                    </description>
+                    <default>CREATED</default>
+                    <constraints>
+                        <constraint>be:c_configstatus</constraint>
+                    </constraints>
+                </property>
+                <property name="be:nNodes">
+                    <type>d:int</type>
+                    <title>Number of Nodes</title>
+                    <description>
+                        Number of nodes configuration stored at the configuration node
+                    </description>
+                </property>
+                <property name="be:configType">
+                    <type>d:text</type>
+                    <title>Status</title>
+                    <description>
+                        Status of config status export job
+                    </description>
+                    <default>CONTENT</default>
+                    <constraints>
+                        <constraint>be:c_config_type</constraint>
+                    </constraints>
+                </property>
+                <property name="be:projNum">
+                    <type>d:int</type>
+                    <title>Export Number</title>
+                    <description>
+                        The export number - it's a random
+                    </description>
+                </property>
+            </properties>
+        </type>
+    </types>
+
+    <constraints>
+        <constraint name="be:c_prjstatus" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>CREATED</value>
+                    <value>PREPARING</value>
+                    <value>PREPARED</value>
+                    <value>EXPORTING</value>
+                    <value>EXPORTED</value>
+                    <value>COMPRESSING</value>
+                    <value>COMPRESSED</value>
+                </list>
+            </parameter>
+        </constraint>
+        <constraint name="be:c_configstatus" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>CREATED</value>
+                    <value>PREPARING</value>
+                    <value>PREPARED</value>
+                    <value>EXPORTING</value>
+                    <value>EXPORTED</value>
+                </list>
+            </parameter>
+        </constraint>
+        <constraint name="be:c_config_type" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>FOLDER</value>
+                    <value>CONTENT</value>
+                </list>
+            </parameter>
+        </constraint>
+    </constraints>
+
+</model>
