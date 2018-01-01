@@ -197,15 +197,16 @@ public class Engine
     	int lastLimitNodeNumber = 0 ;
     	
         for(int nbOfThreads=0; nbOfThreads < nbOfWantedThreads; nbOfThreads++) {
-        	int lowerLimitNodeNumber = lastLimitNodeNumber;
-        	int upperLimitNodeNumber = nodesToExport.size() /(nbOfThreads * nbOfWantedThreads) ;
-        	
-        	List<NodeRef> nodesForThread = nodesToExport.subList(lowerLimitNodeNumber, upperLimitNodeNumber);
         	int threadNumber = nbOfThreads +1 ;
+        	
+        	int lowerLimitNodeNumber = lastLimitNodeNumber;
+        	int upperLimitNodeNumber = nodesToExport.size() * (threadNumber/nbOfWantedThreads) ;
+        	List<NodeRef> nodesForThread = nodesToExport.subList(lowerLimitNodeNumber, upperLimitNodeNumber);     	
+        	
         	NodeExportProcess process = new NodeExportProcess(nodesForThread, threadNumber, exportVersions, revisionHead);
         	process.start();
         	 
-        	lastLimitNodeNumber =upperLimitNodeNumber;
+        	lastLimitNodeNumber = upperLimitNodeNumber;
         }
 
     }
