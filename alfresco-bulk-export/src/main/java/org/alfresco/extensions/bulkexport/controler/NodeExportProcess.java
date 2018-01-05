@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.alfresco.extensions.bulkexport.dao.AlfrescoExportDao;
+import org.alfresco.extensions.bulkexport.dao.AlfrescoExportDaoImpl;
 import org.alfresco.extensions.bulkexport.dao.NodeRefRevision;
 import org.alfresco.extensions.bulkexport.model.FileFolder;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -17,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Simon Girardin
  *
  */
-public class NodeExportProcess extends Thread{
+public class NodeExportProcess implements Runnable{
 
     private boolean exportVersions;
 
@@ -34,21 +35,25 @@ public class NodeExportProcess extends Thread{
     private FileFolder fileFolder;
     
     private List<NodeRef> nodesToExport;
-    
+
     private int threadNumber = 0;
 
 
-    Log log = LogFactory.getLog(Engine.class);
+    Log log = LogFactory.getLog(NodeExportProcess.class);
     
-    NodeExportProcess (List<NodeRef> nodesToExport, int threadNumber, boolean exportVersions, boolean revisionHead){
-    	this.nodesToExport = nodesToExport;
+    NodeExportProcess (List<NodeRef> nodesToExport, int threadNumber, boolean exportVersions, boolean revisionHead, AlfrescoExportDao dao, FileFolder fileFolder){
+        this.dao = dao;
+        this.fileFolder = fileFolder;
+        this.nodesToExport = nodesToExport;
     	this.threadNumber = threadNumber;
     	this.exportVersions = exportVersions;
         this.revisionHead = revisionHead;
     }
 
+    @Override
     public void run(){
     	int logCount = nodesToExport.size();
+        log.info("Running thread N° " + this.threadNumber + " will export " + logCount +" nodes");
         final int NODES_TO_PROCESS = 100;
         try {
         	for (NodeRef nodeRef : nodesToExport) {
@@ -62,15 +67,14 @@ public class NodeExportProcess extends Thread{
                         exportHeadRevision(nodeRef);
                     }
                 }
-
                 if (logCount % NODES_TO_PROCESS == 0) {
                     log.info("Remaining Parent Nodes to process " + logCount);
                 }
             }
+            log.info("Finished running thread N° " + this.threadNumber);
         }catch (Exception e) {
 			log.error(e);
 		}
-        
     }
 
     /**

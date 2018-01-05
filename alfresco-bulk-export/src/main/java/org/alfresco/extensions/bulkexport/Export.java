@@ -146,20 +146,30 @@ public class Export extends AbstractWebScript
             res.getWriter().write("*****************************************************************************************************\n\n\n");
         }
 
-        //
-        // writes will not appear until the script is finished, flush does not help
-        //
-        res.getWriter().write("Performed Export with the following Parameters :\n"); 
-        res.getWriter().write("   export folder   : " + base + "\n");
-        res.getWriter().write("   node to export  : " + nodeRef + "\n");
-        res.getWriter().write("   ignore exported : " + scapeExported + "\n");
-        res.getWriter().write("   export versions : " + exportVersions + "\n");
-        res.getWriter().write("   bulk import revision scheme: " + !revisionHead +"\n");
+        try {
+            //
+            // writes will not appear until the script is finished, flush does not help
+            //
+            res.getWriter().write("Performed Export with the following Parameters :\n");
+            res.getWriter().write("   export folder   : " + base + "\n");
+            res.getWriter().write("   node to export  : " + nodeRef + "\n");
+            res.getWriter().write("   ignore exported : " + scapeExported + "\n");
+            res.getWriter().write("   export versions : " + exportVersions + "\n");
+            res.getWriter().write("   bulk import revision scheme: " + !revisionHead + "\n");
 
-        long duration = timer.elapsedTime();
-        res.getWriter().write("Export elapsed time: minutes:" + duration/60 + " , seconds: " + duration + "\n"); 
+            long duration = timer.elapsedTime();
+            res.getWriter().write("Export elapsed time: minutes:" + duration / 60 + " , seconds: " + duration + "\n");
 
-        log.info("Bulk Export finished");
+            log.info("Bulk Export finished");
+        }catch (Throwable e){
+            log.error("Error when finishing Export (Reason): " + e.toString() + "\n");
+            e.printStackTrace();
+            res.getWriter().write("*****************************************************************************************************\n");
+            res.getWriter().write("** ERROR occured:\n");
+            res.getWriter().write("** " + e.toString() + "\n");
+            res.getWriter().write("*****************************************************************************************************\n\n\n");
+
+        }
     }
 
 

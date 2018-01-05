@@ -1,6 +1,6 @@
 /**
  *  This file is part of Alfresco Bulk Export Tool.
- * 
+ *
  *  Alfresco Bulk Export Tool is free software: you can redistribute it 
  *  and/or modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation, either version 3 of the 
@@ -29,11 +29,11 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * This class is a engine of systems
- * 
+ *
  * @author Denys G. Santos (gsdenys@gmail.com)
  * @version 1.0.1
  */
-public class Engine 
+public class Engine
 {
     Log log = LogFactory.getLog(Engine.class);
 
@@ -55,14 +55,14 @@ public class Engine
     private boolean revisionHead;
 
     private int nbOfWantedThreads= 5;
-    
+
     /**
      * Engine Default Builder
-     * 
+     *
      * @param dao Data Access Object
      * @param fileFolder File and Folder magager
      */
-    public Engine(AlfrescoExportDao dao, FileFolder fileFolder, boolean exportVersions, boolean revisionHead, boolean useNodeCache) 
+    public Engine(AlfrescoExportDao dao, FileFolder fileFolder, boolean exportVersions, boolean revisionHead, boolean useNodeCache)
     {
         this.dao =  dao;
         this.fileFolder = fileFolder;
@@ -73,26 +73,26 @@ public class Engine
 
     /**
      * Recursive method to export alfresco nodes to file system 
-     * 
+     *
      * @param nodeRef
      */
-    public void execute(NodeRef nodeRef) throws Exception 
-    {    
+    public void execute(NodeRef nodeRef) throws Exception
+    {
         // case node is folder create a folder and execute recursively 
         // other else create file 
         log.debug("execute (noderef)");
-        
+
         if(!this.dao.isNodeIgnored(nodeRef.toString()))
-        {    
+        {
             log.info("Find all nodes to export (no history)");
             List<NodeRef> allNodes = getNodesToExport(nodeRef);
             log.info("Nodes to export = " + allNodes.size());
             exportNodes(allNodes);
-        }    
+        }
         log.debug("execute (noderef) finished");
     }
 
-    private List<NodeRef> getNodesToExport(NodeRef rootNode) throws Exception 
+    private List<NodeRef> getNodesToExport(NodeRef rootNode) throws Exception
     {
         List<NodeRef> nodes = null;
         if (useNodeCache)
@@ -124,7 +124,7 @@ public class Engine
         return fname.getPath();
     }
 
-    private void storeNodeListToCache(NodeRef rootNode, List<NodeRef> list) throws Exception 
+    private void storeNodeListToCache(NodeRef rootNode, List<NodeRef> list) throws Exception
     {
         // get a better name
         FileOutputStream fos= new FileOutputStream(nodeFileName(rootNode));
@@ -134,7 +134,7 @@ public class Engine
         fos.close();
     }
 
-    private List<NodeRef> retrieveNodeListFromCache(NodeRef rootNode) throws Exception 
+    private List<NodeRef> retrieveNodeListFromCache(NodeRef rootNode) throws Exception
     {
         List<NodeRef> list = null;
 
@@ -155,31 +155,37 @@ public class Engine
 
     /**
      * Recursive find of all item head nodes from a given node ref
-     * 
+     *
      * @param nodeRef
      */
-    private List<NodeRef> findAllNodes(NodeRef nodeRef) throws Exception 
-    {    
+    private List<NodeRef> findAllNodes(NodeRef nodeRef) throws Exception
+    {
         List<NodeRef> nodes = new ArrayList<NodeRef>();
 
         log.debug("findAllNodes (noderef)");
-        
-        if(!this.dao.isNodeIgnored(nodeRef.toString()))
-        {    
-            if(this.dao.isFolder(nodeRef))
+        try{
+            if(!this.dao.isNodeIgnored(nodeRef.toString()))
             {
-                nodes.add(nodeRef); // add folder as well
-                List<NodeRef> children= this.dao.getChildren(nodeRef);
-                for (NodeRef child : children) 
-                {            
-                    nodes.addAll(this.findAllNodes(child));
+                if(this.dao.isFolder(nodeRef))
+                {
+                    nodes.add(nodeRef); // add folder as well
+                    List<NodeRef> children= this.dao.getChildren(nodeRef);
+                    for (NodeRef child : children)
+                    {
+                        nodes.addAll(this.findAllNodes(child));
+                    }
                 }
-            } 
-            else 
-            {
-                nodes.add(nodeRef);
+                else
+                {
+                    nodes.add(nodeRef);
+                }
             }
-        }     
+        }catch (Throwable e){
+            e.printStackTrace();
+            log.info("Error Multithreading", e);
+            throw e;
+        }
+
 
         log.debug("execute (noderef) finished");
         return nodes;
@@ -189,25 +195,25 @@ public class Engine
 
     /**
      * Iterate over nodes to export, and do appropriate action
-     * 
+     *
      * @param nodesToExport
      */
-    private void exportNodes(final List<NodeRef> nodesToExport) throws Exception
-    {    
-    	int lastLimitNodeNumber = 0 ;
-    	
-        for(int nbOfThreads=0; nbOfThreads < nbOfWantedThreads; nbOfThreads++) {
-        	int threadNumber = nbOfThreads +1 ;
-        	
-        	int lowerLimitNodeNumber = lastLimitNodeNumber;
-        	int upperLimitNodeNumber = nodesToExport.size() * (threadNumber/nbOfWantedThreads) ;
-        	List<NodeRef> nodesForThread = nodesToExport.subList(lowerLimitNodeNumber, upperLimitNodeNumber);     	
-        	
-        	NodeExportProcess process = new NodeExportProcess(nodesForThread, threadNumber, exportVersions, revisionHead);
-        	process.start();
-        	 
-        	lastLimitNodeNumber = upperLimitNodeNumber;
-        }
+    private void exportNodes(final List<NodeRef> nodesToExport)
+    {
+        int lastLimitNodeNumber = 0 ;
+        for(int threadNumber=1; threadNumber <= nbOfWantedThreads; threadNumber++) {
+            log.info("Starting thread N°"+threadNumber);
 
+            int lowerLimitNodeNumber = lastLimitNodeNumber;
+            int upperLimitNodeNumber = (int)(nodesToExport.size() * (threadNumber / (double)nbOfWantedThreads)) ;
+            List<NodeRef> nodesForCurrentThread = nodesToExport.subList(lowerLimitNodeNumber, upperLimitNodeNumber);
+
+            NodeExportProcess process = new NodeExportProcess(nodesForCurrentThread, threadNumber, exportVersions, revisionHead, dao, fileFolder);
+            process.run();
+
+            log.info("Thread is finished N°"+threadNumber);
+
+            lastLimitNodeNumber = upperLimitNodeNumber;
+        }
     }
 }
