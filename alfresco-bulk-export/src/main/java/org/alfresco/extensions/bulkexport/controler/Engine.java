@@ -16,15 +16,16 @@
  */
 package org.alfresco.extensions.bulkexport.controler;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.alfresco.extensions.bulkexport.dao.AlfrescoExportDao;
 import org.alfresco.extensions.bulkexport.model.FileFolder;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 
 /**
@@ -54,7 +55,14 @@ public class Engine
      * This behaviour is not how the bulk importer expects revisions */
     private boolean revisionHead;
 
-    private int nbOfWantedThreads= 5;
+    /* Nb of Parralel Threads**/
+    private int nbOfThreads;
+
+    /** How many Nodes are exported per process*/
+    private int exportChunkSize;
+
+    /** Nb of Tasks for the thread pool */
+    private int nbOfTasks;
 
     /**
      * Engine Default Builder
@@ -62,13 +70,16 @@ public class Engine
      * @param dao Data Access Object
      * @param fileFolder File and Folder magager
      */
-    public Engine(AlfrescoExportDao dao, FileFolder fileFolder, boolean exportVersions, boolean revisionHead, boolean useNodeCache)
+    public Engine(AlfrescoExportDao dao, FileFolder fileFolder, boolean exportVersions, boolean revisionHead, boolean useNodeCache, int nbOfThreads, int exportChunkSize, int nbOfTasks)
     {
         this.dao =  dao;
         this.fileFolder = fileFolder;
         this.exportVersions = exportVersions;
         this.revisionHead = revisionHead;
         this.useNodeCache = useNodeCache;
+        this.nbOfThreads = nbOfThreads;
+        this.exportChunkSize = exportChunkSize;
+        this.nbOfTasks = nbOfTasks;
     }
 
     /**
@@ -185,8 +196,6 @@ public class Engine
             log.info("Error Multithreading", e);
             throw e;
         }
-
-
         log.debug("execute (noderef) finished");
         return nodes;
     }
@@ -194,26 +203,47 @@ public class Engine
 
 
     /**
-     * Iterate over nodes to export, and do appropriate action
+     * Creates Thread Pool and Tasks with dispatch nodes
      *
      * @param nodesToExport
      */
-    private void exportNodes(final List<NodeRef> nodesToExport)
+    private void exportNodes(final List<NodeRef> nodesToExport) throws InterruptedException, ExecutionException
     {
-        int lastLimitNodeNumber = 0 ;
-        for(int threadNumber=1; threadNumber <= nbOfWantedThreads; threadNumber++) {
-            log.info("Starting thread N°"+threadNumber);
+        ExecutorService threadPool = Executors.newFixedThreadPool(nbOfThreads);
+        CompletionService<String> pool = new ExecutorCompletionService<String>(threadPool);
 
-            int lowerLimitNodeNumber = lastLimitNodeNumber;
-            int upperLimitNodeNumber = (int)(nodesToExport.size() * (threadNumber / (double)nbOfWantedThreads)) ;
+        int previousLowerLimitNodeNumber = 0 ;
+        for(int taskNumber = 1; taskNumber <= this.nbOfTasks; taskNumber++) {
+            int upperLimitNodeNumber = calculateNextUpperLimitNodeNumber(previousLowerLimitNodeNumber, nodesToExport.size());
+            int lowerLimitNodeNumber = calculateNextLowerLimitNodeNumber(previousLowerLimitNodeNumber, upperLimitNodeNumber);
+            log.info("Task number"+ taskNumber +" LowerLimitNodeNumber " + lowerLimitNodeNumber);
+            log.info("Task number"+ taskNumber +" UpperLimitNodeNumber " + upperLimitNodeNumber);
+
+            previousLowerLimitNodeNumber = upperLimitNodeNumber;
+
             List<NodeRef> nodesForCurrentThread = nodesToExport.subList(lowerLimitNodeNumber, upperLimitNodeNumber);
-
-            NodeExportProcess process = new NodeExportProcess(nodesForCurrentThread, threadNumber, exportVersions, revisionHead, dao, fileFolder);
-            process.run();
-
-            log.info("Thread is finished N°"+threadNumber);
-
-            lastLimitNodeNumber = upperLimitNodeNumber;
+            pool.submit(new NodeExportTask(nodesForCurrentThread, exportVersions, revisionHead, dao, fileFolder, taskNumber));
         }
+
+        for(int i = 0; i < this.nbOfTasks; i++){
+            String result = pool.take().get();
+            log.info(result);
+        }
+   }
+
+   private int calculateNextLowerLimitNodeNumber(int previousLowerLimitNodeNumber, int upperLimitNodeNumber){
+       int nextLowerLimitNodeNumber = previousLowerLimitNodeNumber;
+       if(nextLowerLimitNodeNumber > upperLimitNodeNumber){
+           nextLowerLimitNodeNumber = upperLimitNodeNumber;
+       }
+       return nextLowerLimitNodeNumber;
+   }
+
+    private int calculateNextUpperLimitNodeNumber(int previousLowerLimitNodeNumber, int nodesToExportSize){
+        int nextUpperLimitNodeNumber = previousLowerLimitNodeNumber + this.exportChunkSize;
+        if (nextUpperLimitNodeNumber > nodesToExportSize){
+            nextUpperLimitNodeNumber = nodesToExportSize;
+        }
+        return nextUpperLimitNodeNumber;
     }
 }
