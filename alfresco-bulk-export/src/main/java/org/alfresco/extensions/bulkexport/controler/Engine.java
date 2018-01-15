@@ -1,6 +1,6 @@
 /**
  *  This file is part of Alfresco Bulk Export Tool.
- * 
+ *
  *  Alfresco Bulk Export Tool is free software: you can redistribute it 
  *  and/or modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation, either version 3 of the 
@@ -16,85 +16,94 @@
  */
 package org.alfresco.extensions.bulkexport.controler;
 
-import java.io.ByteArrayOutputStream;
-
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.io.*;
-
 import org.alfresco.extensions.bulkexport.dao.AlfrescoExportDao;
-import org.alfresco.extensions.bulkexport.dao.NodeRefRevision;
 import org.alfresco.extensions.bulkexport.model.FileFolder;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+
 
 /**
- * This classe is a engine of systems
- * 
+ * This class is a engine of systems
+ *
  * @author Denys G. Santos (gsdenys@gmail.com)
  * @version 1.0.1
  */
-public class Engine 
+public class Engine
 {
     Log log = LogFactory.getLog(Engine.class);
 
     /** Data Access Object */
     private AlfrescoExportDao dao;
-    
+
+    /** if true the look for a cache containing a list of all nodes to export
+     * */
+    private boolean useNodeCache;
+
+
     /** File and folder manager */
     private FileFolder fileFolder;
 
     private boolean exportVersions;
 
-    /** If true the the head revision will be named, eg. if head revision is 1.4 then filename will contain the revision. 
+    /** If true the the head revision will be named, eg. if head revision is 1.4 then filename will contain the revision.
      * This behaviour is not how the bulk importer expects revisions */
     private boolean revisionHead;
 
-    /** if true the look for a cache containing a list of all nodes to export
-     * */
-    private boolean useNodeCache;
-    
+    /* Nb of Parralel Threads**/
+    private int nbOfThreads;
+
+    /** How many Nodes are exported per process*/
+    private int exportChunkSize;
+
+    /** Nb of Tasks for the thread pool */
+    private int nbOfTasks;
+
     /**
      * Engine Default Builder
-     * 
+     *
      * @param dao Data Access Object
      * @param fileFolder File and Folder magager
      */
-    public Engine(AlfrescoExportDao dao, FileFolder fileFolder, boolean exportVersions, boolean revisionHead, boolean useNodeCache) 
+    public Engine(AlfrescoExportDao dao, FileFolder fileFolder, boolean exportVersions, boolean revisionHead, boolean useNodeCache, int nbOfThreads, int exportChunkSize, int nbOfTasks)
     {
         this.dao =  dao;
         this.fileFolder = fileFolder;
         this.exportVersions = exportVersions;
         this.revisionHead = revisionHead;
         this.useNodeCache = useNodeCache;
+        this.nbOfThreads = nbOfThreads;
+        this.exportChunkSize = exportChunkSize;
+        this.nbOfTasks = nbOfTasks;
     }
 
     /**
      * Recursive method to export alfresco nodes to file system 
-     * 
+     *
      * @param nodeRef
      */
-    public void execute(NodeRef nodeRef) throws Exception 
-    {    
+    public void execute(NodeRef nodeRef) throws Exception
+    {
         // case node is folder create a folder and execute recursively 
         // other else create file 
         log.debug("execute (noderef)");
-        
+
         if(!this.dao.isNodeIgnored(nodeRef.toString()))
-        {    
+        {
             log.info("Find all nodes to export (no history)");
             List<NodeRef> allNodes = getNodesToExport(nodeRef);
             log.info("Nodes to export = " + allNodes.size());
             exportNodes(allNodes);
-        }    
+        }
         log.debug("execute (noderef) finished");
     }
 
-    private List<NodeRef> getNodesToExport(NodeRef rootNode) throws Exception 
+    private List<NodeRef> getNodesToExport(NodeRef rootNode) throws Exception
     {
         List<NodeRef> nodes = null;
         if (useNodeCache)
@@ -126,7 +135,7 @@ public class Engine
         return fname.getPath();
     }
 
-    private void storeNodeListToCache(NodeRef rootNode, List<NodeRef> list) throws Exception 
+    private void storeNodeListToCache(NodeRef rootNode, List<NodeRef> list) throws Exception
     {
         // get a better name
         FileOutputStream fos= new FileOutputStream(nodeFileName(rootNode));
@@ -136,7 +145,7 @@ public class Engine
         fos.close();
     }
 
-    private List<NodeRef> retrieveNodeListFromCache(NodeRef rootNode) throws Exception 
+    private List<NodeRef> retrieveNodeListFromCache(NodeRef rootNode) throws Exception
     {
         List<NodeRef> list = null;
 
@@ -157,198 +166,84 @@ public class Engine
 
     /**
      * Recursive find of all item head nodes from a given node ref
-     * 
+     *
      * @param nodeRef
      */
-    private List<NodeRef> findAllNodes(NodeRef nodeRef) throws Exception 
-    {    
+    private List<NodeRef> findAllNodes(NodeRef nodeRef) throws Exception
+    {
         List<NodeRef> nodes = new ArrayList<NodeRef>();
 
         log.debug("findAllNodes (noderef)");
-        
-        if(!this.dao.isNodeIgnored(nodeRef.toString()))
-        {    
-            if(this.dao.isFolder(nodeRef))
+        try{
+            if(!this.dao.isNodeIgnored(nodeRef.toString()))
             {
-                nodes.add(nodeRef); // add folder as well
-                List<NodeRef> children= this.dao.getChildren(nodeRef);
-                for (NodeRef child : children) 
-                {            
-                    nodes.addAll(this.findAllNodes(child));
+                if(this.dao.isFolder(nodeRef))
+                {
+                    nodes.add(nodeRef); // add folder as well
+                    List<NodeRef> children= this.dao.getChildren(nodeRef);
+                    for (NodeRef child : children)
+                    {
+                        nodes.addAll(this.findAllNodes(child));
+                    }
                 }
-            } 
-            else 
-            {
-                nodes.add(nodeRef);
+                else
+                {
+                    nodes.add(nodeRef);
+                }
             }
-        }     
-
+        }catch (Throwable e){
+            e.printStackTrace();
+            log.info("Error Multithreading", e);
+            throw e;
+        }
         log.debug("execute (noderef) finished");
         return nodes;
     }
 
-    private void exportHeadRevision(NodeRef nodeRef) throws Exception
-    {
-        this.createFile(nodeRef);
-    }
 
-    private void exportFullRevisionHistory(NodeRef nodeRef) throws Exception
-    {
-        Map<String,NodeRefRevision> nodes = this.dao.getNodeRefHistory(nodeRef.toString());
-        if (nodes != null)
-        {
-            List sortedKeys=new ArrayList(nodes.keySet());
-
-            Collections.sort(sortedKeys, new VersionNumberComparator());
-            if (sortedKeys.size() < 1)
-            {
-                throw new Exception("no revisions available");
-            }
-
-            String headRevision = (String)sortedKeys.get(sortedKeys.size()-1);
-
-            for (String revision : nodes.keySet()) 
-            {
-                NodeRefRevision nodeRevision = nodes.get(revision);
-                this.createFile(nodeRef, nodeRevision.node, revision, headRevision == revision);
-            }
-        }
-        else
-        {
-            // no revision history so lets just create the most recent revision
-            log.debug("execute (noderef) no revision history found, dump node as head revision");
-            this.createFile(nodeRef, nodeRef, "1.0", true);
-        }
-    }
 
     /**
-     * Iterate over nodes to export, and do appropriate action
-     * 
+     * Creates Thread Pool and Tasks with dispatch nodes
+     *
      * @param nodesToExport
      */
-    private void exportNodes(List<NodeRef> nodesToExport) throws Exception 
+    private void exportNodes(final List<NodeRef> nodesToExport) throws InterruptedException, ExecutionException
     {
-        final int NODES_TO_PROCESS = 100;
+        ExecutorService threadPool = Executors.newFixedThreadPool(nbOfThreads);
+        CompletionService<String> pool = new ExecutorCompletionService<String>(threadPool);
 
-        int logCount = nodesToExport.size();
+        int previousLowerLimitNodeNumber = 0 ;
+        for(int taskNumber = 1; taskNumber <= this.nbOfTasks; taskNumber++) {
+            int upperLimitNodeNumber = calculateNextUpperLimitNodeNumber(previousLowerLimitNodeNumber, nodesToExport.size());
+            int lowerLimitNodeNumber = calculateNextLowerLimitNodeNumber(previousLowerLimitNodeNumber, upperLimitNodeNumber);
+            log.info("Task number"+ taskNumber +" LowerLimitNodeNumber " + lowerLimitNodeNumber);
+            log.info("Task number"+ taskNumber +" UpperLimitNodeNumber " + upperLimitNodeNumber);
 
-        for (NodeRef nodeRef : nodesToExport) 
-        {
-            logCount--;
-            if(this.dao.isFolder(nodeRef))
-            {
-                this.createFolder(nodeRef);
-            } 
-            else
-            {
-                if (exportVersions)
-                {
-                    exportFullRevisionHistory(nodeRef);
-                }
-                else
-                {
-                    exportHeadRevision(nodeRef);
-                }
-            }
+            previousLowerLimitNodeNumber = upperLimitNodeNumber;
 
-            if (logCount % NODES_TO_PROCESS == 0)
-            {
-                log.info("Remaining Parent Nodes to process " + logCount);
-            }
-        }
-    }
-    
-    
-    /**
-     * Create file (Document and Bulk XML Meta data)
-     * 
-     * @param file 
-     * @throws Exception
-     */
-    private void createFile(NodeRef headNode, NodeRef file, String revision, boolean isHeadRevision) throws Exception 
-    {
-        String path = null;
-        if (revision == null)
-        {
-            log.error("createFile (headNode: "+headNode.toString() + " , filenode: )"+file.toString()+" , revision: " + revision + ")");
-            throw new Exception("revision for node was not found");
+            List<NodeRef> nodesForCurrentThread = nodesToExport.subList(lowerLimitNodeNumber, upperLimitNodeNumber);
+            pool.submit(new NodeExportTask(nodesForCurrentThread, exportVersions, revisionHead, dao, fileFolder, taskNumber));
         }
 
-        path = this.dao.getPath(headNode) + "." + revision;
-
-        // if we are exporting using the revisions compatible with alfresco bulk import then we do not number the head(most recent) revisoon
-        if (!revisionHead && isHeadRevision)
-        {
-            path = this.dao.getPath(headNode);
+        for(int i = 0; i < this.nbOfTasks; i++){
+            String result = pool.take().get();
+            log.info(result);
         }
+   }
 
-        doCreateFile(file, path);
-    }
+   private int calculateNextLowerLimitNodeNumber(int previousLowerLimitNodeNumber, int upperLimitNodeNumber){
+       int nextLowerLimitNodeNumber = previousLowerLimitNodeNumber;
+       if(nextLowerLimitNodeNumber > upperLimitNodeNumber){
+           nextLowerLimitNodeNumber = upperLimitNodeNumber;
+       }
+       return nextLowerLimitNodeNumber;
+   }
 
-    private void createFile(NodeRef file) throws Exception 
-    {
-        String path = null;
-        path = this.dao.getPath(file);
-        doCreateFile(file, path);
-    }
-
-    private void doCreateFile(NodeRef file, String path) throws Exception 
-    {
-        //get Informations
-        log.debug("doCreateFile (noderef)");
-
-        // need these variables out of the try scope for debugging purposes when the exception is thrown
-        String type = null;
-        List<String> aspects = null;
-        Map<String, String> properties = null;
-
-        try
-        {
-            String fname = this.fileFolder.createFullPath(path);
-            log.debug("doCreateFile file =" + fname);
-            if (this.dao.getContentAndStoreInFile(file, fname) == false)
-            {
-                log.debug("doCreateFile ignore this file"); 
-                return;
-            }
-            type = this.dao.getType(file);
-            aspects = this.dao.getAspectsAsString(file);
-            properties = this.dao.getPropertiesAsString(file);
-            
-            //Create Files
-            this.fileFolder.insertFileProperties(type, aspects, properties, path);
-            type = null;
-            properties = null;
-            aspects = null;
+    private int calculateNextUpperLimitNodeNumber(int previousLowerLimitNodeNumber, int nodesToExportSize){
+        int nextUpperLimitNodeNumber = previousLowerLimitNodeNumber + this.exportChunkSize;
+        if (nextUpperLimitNodeNumber > nodesToExportSize){
+            nextUpperLimitNodeNumber = nodesToExportSize;
         }
-        catch (Exception e) 
-        {
-            // for debugging purposes
-            log.error("doCreateFile failed for noderef = " + file.toString());
-            throw e;
-        }
-    }
-    
-    
-    /**
-     * Create Folder and XML Metadata
-     * 
-     * @param file
-     * @throws Exception
-     */
-    private void createFolder(NodeRef folder) throws Exception 
-    {
-        //Get Data
-        log.debug("createFolder");
-        String path = this.dao.getPath(folder);
-        log.debug("createFolder path="+path);
-        String type = this.dao.getType(folder);
-        log.debug("createFolder type="+type);
-        List<String> aspects = this.dao.getAspectsAsString(folder);
-        Map<String, String> properties = this.dao.getPropertiesAsString(folder);
-        
-        //Create Folder and XMl Metadata
-        this.fileFolder.createFolder(path);
-        this.fileFolder.insertFileProperties(type, aspects, properties, path);
+        return nextUpperLimitNodeNumber;
     }
 }
