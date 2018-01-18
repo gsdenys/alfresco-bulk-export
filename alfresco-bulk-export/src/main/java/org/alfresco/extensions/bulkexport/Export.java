@@ -78,8 +78,7 @@ public class Export extends AbstractWebScript
         boolean useNodeCache = false;
         int nbOfThreads = 1;
         int exportChunkSize = 10;
-        int nbOfTasks = 2;
-        
+
         if (req.getParameter("ignoreExported") != null)
         {
             if(req.getParameter("ignoreExported").equals("true")) 
@@ -134,18 +133,10 @@ public class Export extends AbstractWebScript
             }
         }
 
-        if (req.getParameter("nbOfTasks") != null)
-        {
-            if(StringUtils.isNumeric(req.getParameter("nbOfTasks")))
-            {
-                nbOfTasks = (int)Integer.parseInt(req.getParameter("nbOfTasks"));
-            }
-        }
-        
         //init variables
         dao = new AlfrescoExportDaoImpl(this.serviceRegistry);
         fileFolder = new FileFolder(res, base, scapeExported);
-        engine = new Engine(dao, fileFolder, exportVersions, revisionHead, useNodeCache, nbOfThreads, exportChunkSize, nbOfTasks);
+        engine = new Engine(dao, fileFolder, exportVersions, revisionHead, useNodeCache, nbOfThreads, exportChunkSize);
         
         NodeRef nf = null;
 
@@ -185,7 +176,6 @@ public class Export extends AbstractWebScript
             res.getWriter().write("   export versions : " + exportVersions + "\n");
             res.getWriter().write("   bulk import revision scheme: " + !revisionHead + "\n");
             res.getWriter().write("   Nb. of threads: " + nbOfThreads + "\n");
-            res.getWriter().write("   Nb. of Tasks: " + nbOfTasks + "\n");
             res.getWriter().write("   Chunk size: " + exportChunkSize + "\n");
 
             long duration = timer.elapsedTime();
