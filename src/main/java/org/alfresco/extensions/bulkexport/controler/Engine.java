@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 /**
@@ -184,6 +185,7 @@ public class Engine {
      */
     private void exportNodes(final List<NodeRef> nodesToExport) throws InterruptedException, ExecutionException {
         ExecutorService threadPool = Executors.newFixedThreadPool(nbOfThreads);
+        List<Future<?>> futures = new ArrayList<>();
 
         int previousLowerLimitNodeNumber = 0;
         int noOfTasks = new Double(Math.ceil(nodesToExport.size() / this.exportChunkSize)).intValue();
@@ -199,8 +201,15 @@ public class Engine {
             previousLowerLimitNodeNumber = upperLimitNodeNumber;
 
             List<NodeRef> nodesForCurrentThread = nodesToExport.subList(lowerLimitNodeNumber, upperLimitNodeNumber);
-            threadPool.submit(new NodeExportTask(nodesForCurrentThread, exportVersions, revisionHead, dao, fileFolder, taskNumber));
+            futures.add(threadPool.submit(new NodeExportTask(nodesForCurrentThread, exportVersions, revisionHead, dao, fileFolder, taskNumber)));
         }
+
+        boolean exportTerminated = false;
+
+        for (Future<?> future : futures) {
+            exportTerminated &= future.isDone();
+        }
+
     }
 
     private int calculateNextLowerLimitNodeNumber(int previousLowerLimitNodeNumber, int upperLimitNodeNumber) {
