@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.alfresco.extencions.sbulkexport</groupId>
     <artifactId>bulkexport</artifactId>
-    <version>0.0.9</version>
+    <version>0.0.9-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>The Alfresco BulkExport (Alfresco Module)</description>
 
@@ -102,6 +102,14 @@
             </plugins>
         </pluginManagement>
     </build>
+
+
+    <scm>
+        <connection>scm:git:git@github.com:Alfresco/alfresco-bulk-export.git</connection>
+        <developerConnection>scm:git:git@github.com:Alfresco/alfresco-bulk-export.git</developerConnection>
+        <url>https://github.com/Alfresco/alfresco-bulk-export</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <distributionManagement>
         <repository>
