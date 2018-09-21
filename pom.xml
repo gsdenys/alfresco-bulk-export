@@ -107,7 +107,7 @@
         <connection>scm:git:git@github.com:Alfresco/alfresco-bulk-export.git</connection>
         <developerConnection>scm:git:git@github.com:Alfresco/alfresco-bulk-export.git</developerConnection>
         <url>https://github.com/Alfresco/alfresco-bulk-export</url>
-        <tag>bulkexport-0.0.11</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
