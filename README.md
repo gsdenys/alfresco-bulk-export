@@ -1,3 +1,9 @@
+
+
+# Project deprecated in favor of <a href="https://github.com/Alfresco/alfresco-bulk-export">Alfresco/alfresco-bulk-export</a>
+
+
+
 # Alfresco Bulk Export Tool #
 A bulk filesystem export tool for the open source [Alfresco](http://www.alfresco.com) CMS.
 
