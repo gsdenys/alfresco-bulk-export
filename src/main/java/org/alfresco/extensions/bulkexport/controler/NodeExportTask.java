@@ -180,8 +180,8 @@ public class NodeExportTask implements Callable<String> {
         int logCount = nodesToExport.size();
         log.info("Running task " + taskNumber + " will export " + logCount + " nodes");
         final int NODES_TO_PROCESS = 100;
-        try {
-            for (NodeRef nodeRef : nodesToExport) {
+        for (NodeRef nodeRef : nodesToExport) {
+            try{
                 LOG.debug("Handling in task NodeRef: " + nodeRef.getId());
                 logCount--;
                 if (this.dao.isFolder(nodeRef)) {
@@ -198,10 +198,13 @@ public class NodeExportTask implements Callable<String> {
                 if (logCount % NODES_TO_PROCESS == 0) {
                     log.info("Task " + taskNumber + " has remaining nodes to process " + logCount);
                 }
+            } catch (InterruptedException e) {
+                LOG.info(Thread.currentThread().getName() + " interrupted");
+            } catch (Exception e){
+                LOG.error("Error in task:" + taskNumber + " on Node: " + nodeRef.getId(), e);
             }
-        } catch (InterruptedException e) {
-            log.info(Thread.currentThread().getName() + " interrupted");
         }
+
         AuthenticationUtil.clearCurrentSecurityContext();
         return "Task " + taskNumber + " is finished";
     }
