@@ -300,8 +300,6 @@ public class FileFolder
             String fp = this.createXmlFile(filePath);
             File file = new File(fp);
 
-//            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
 
             StringBuilder builder = new StringBuilder();
@@ -311,18 +309,6 @@ public class FileFolder
 
             bw.write(builder.toString());
             bw.close();
-
-
-//            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
-//            out.append(header);
-//            out.append(text);
-//            out.append(footer);
-//
-//            out.flush();
-//            out.close();
-
-
-
         }
         catch (Exception e)
         {
