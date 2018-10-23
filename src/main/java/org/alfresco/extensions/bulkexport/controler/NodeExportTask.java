@@ -94,7 +94,7 @@ public class NodeExportTask implements Callable<String> {
 
     private void doCreateFile(NodeRef file, String path) throws Exception {
         //get Informations
-        LOG.debug("doCreateFile ("+file.getId()+")");
+        LOG.debug("doCreateFile (" + file.getId() + ")");
 
         // need these variables out of the try scope for debugging purposes when the exception is thrown
         String type = null;
@@ -105,7 +105,7 @@ public class NodeExportTask implements Callable<String> {
             String fname = this.fileFolder.createFullPath(path);
             log.debug("doCreateFile file =" + fname);
             if (this.dao.getContentAndStoreInFile(file, fname) == false) {
-                LOG.debug("doCreateFile ignore this file: "  + fname);
+                LOG.debug("doCreateFile ignore this file: " + fname);
                 return;
             }
             type = this.dao.getType(file);
@@ -181,7 +181,7 @@ public class NodeExportTask implements Callable<String> {
         log.info("Running task " + taskNumber + " will export " + logCount + " nodes");
         final int NODES_TO_PROCESS = 100;
         for (NodeRef nodeRef : nodesToExport) {
-            try{
+            try {
                 LOG.debug("Handling in task NodeRef: " + nodeRef.getId());
                 logCount--;
                 if (this.dao.isFolder(nodeRef)) {
@@ -200,7 +200,7 @@ public class NodeExportTask implements Callable<String> {
                 }
             } catch (InterruptedException e) {
                 LOG.info(Thread.currentThread().getName() + " interrupted");
-            } catch (Exception e){
+            } catch (Exception e) {
                 LOG.error("Error in task:" + taskNumber + " on Node: " + nodeRef.getId(), e);
             }
         }
