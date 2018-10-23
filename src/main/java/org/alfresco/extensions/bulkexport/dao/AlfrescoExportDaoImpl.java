@@ -367,10 +367,13 @@ public class AlfrescoExportDaoImpl implements AlfrescoExportDao
     {
         log.debug("isFolder");
 
-        FileInfo info = service.getFileInfo(nodeRef);
-        log.debug("isFolder got file info getName = " + info.getName());
-        log.debug("isFolder got file info isFolder = " + info.isFolder());
-        log.debug("isFolder return isFolder");
+        if(info != null){
+            LOG.debug("isFolder got file info getName = " + info.getName());
+            LOG.debug("isFolder got file info isFolder = " + info.isFolder());
+            LOG.debug("isFolder return isFolder");
+        } else {
+            LOG.debug("Fileinfo for Noderef is null: " + nodeRef.getId());
+        }
         
         return info.isFolder();
     }
