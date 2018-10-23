@@ -544,6 +544,7 @@ public class AlfrescoExportDaoImpl implements AlfrescoExportDao
         {
             if(qn.equals(qName))
             {
+                LOG.debug("nodeIsIgnored" + nodeRef);
                 return true;
             }
         }
